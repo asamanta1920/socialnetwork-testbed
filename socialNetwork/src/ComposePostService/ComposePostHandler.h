@@ -22,6 +22,8 @@
 #include "../logger.h"
 #include "../tracing.h"
 
+using namespace std::chrono_literals;
+
 namespace social_network {
 using json = nlohmann::json;
 using std::chrono::duration_cast;
@@ -416,27 +418,78 @@ void ComposePostHandler::ComposePost(
   //Before _UploadUserTimelineHelper and _UploadHomeTimelineHelper.
   //Change _UploadUserTimelineHelper and _UploadHomeTimelineHelper to deferred.
   //To let them start execute after post_future.get() return.
-  auto post_future =
-      std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
-                 this, req_id, post, writer_text_map);
-  auto user_timeline_future = std::async(
-      std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
-      req_id, post.post_id, user_id, timestamp, writer_text_map);
-  auto home_timeline_future = std::async(
-      std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this,
-      req_id, post.post_id, user_id, timestamp, user_mention_ids,
-      writer_text_map);
+  
+  std::ofstream outfile("timeout_check.txt");
 
-  // try
-  // {
+  std::future_status status;
+
+  // Handle post_future
+  auto post_future = std::async(std::launch::async, [this, req_id, post, writer_text_map]() {
+      std::this_thread::sleep_for(10s);
+      return this->_UploadPostHelper(req_id, post, writer_text_map);
+  });
+
+  outfile << "post_future waiting...\n";
+  do {
+      switch (status = post_future.wait_for(1s)) {
+          case std::future_status::deferred:
+              outfile << "post_future deferred\n";
+              break;
+          case std::future_status::timeout:
+              outfile << "post_future timeout\n";
+              break;
+          case std::future_status::ready:
+              outfile << "post_future ready!\n";
+              break;
+      }
+  } while (status != std::future_status::ready);
   post_future.get();
+
+  // Handle user_timeline_future
+  auto user_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, writer_text_map]() {
+      std::this_thread::sleep_for(10s);
+      return this->_UploadUserTimelineHelper(req_id, post.post_id, user_id, timestamp, writer_text_map);
+  });
+
+  outfile << "user_timeline_future waiting...\n";
+  do {
+      switch (status = user_timeline_future.wait_for(1s)) {
+          case std::future_status::deferred:
+              outfile << "user_timeline_future deferred\n";
+              break;
+          case std::future_status::timeout:
+              outfile << "user_timeline_future timeout\n";
+              break;
+          case std::future_status::ready:
+              outfile << "user_timeline_future ready!\n";
+              break;
+      }
+  } while (status != std::future_status::ready);
   user_timeline_future.get();
+
+  // Handle home_timeline_future
+  auto home_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, user_mention_ids, writer_text_map]() {
+      std::this_thread::sleep_for(10s);
+      return this->_UploadHomeTimelineHelper(req_id, post.post_id, user_id, timestamp, user_mention_ids, writer_text_map);
+  });
+
+  outfile << "home_timeline_future waiting...\n";
+  do {
+      switch (status = home_timeline_future.wait_for(1s)) {
+          case std::future_status::deferred:
+              outfile << "home_timeline_future deferred\n";
+              break;
+          case std::future_status::timeout:
+              outfile << "home_timeline_future timeout\n";
+              break;
+          case std::future_status::ready:
+              outfile << "home_timeline_future ready!\n";
+              break;
+      }
+  } while (status != std::future_status::ready);
   home_timeline_future.get();
-  // }
-  // catch (...)
-  // {
-  //   throw;
-  // }
+
+
   span->Finish();
 }
 

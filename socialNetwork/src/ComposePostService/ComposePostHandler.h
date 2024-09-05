@@ -425,7 +425,7 @@ void ComposePostHandler::ComposePost(
 
   // Handle post_future
   auto post_future = std::async(std::launch::async, [this, req_id, post, writer_text_map]() {
-      std::this_thread::sleep_for(5s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadPostHelper(req_id, post, writer_text_map);
   });
 
@@ -447,7 +447,7 @@ void ComposePostHandler::ComposePost(
 
   // Handle user_timeline_future
   auto user_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, writer_text_map]() {
-      std::this_thread::sleep_for(5s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadUserTimelineHelper(req_id, post.post_id, user_id, timestamp, writer_text_map);
   });
 
@@ -469,7 +469,7 @@ void ComposePostHandler::ComposePost(
 
   // Handle home_timeline_future
   auto home_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, user_mention_ids, writer_text_map]() {
-      std::this_thread::sleep_for(5s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadHomeTimelineHelper(req_id, post.post_id, user_id, timestamp, user_mention_ids, writer_text_map);
   });
 

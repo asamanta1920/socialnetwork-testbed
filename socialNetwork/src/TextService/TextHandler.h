@@ -15,6 +15,9 @@
 #include "../tracing.h"
 
 namespace social_network {
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::system_clock;
 
 class TextHandler : public TextServiceIf {
  public:

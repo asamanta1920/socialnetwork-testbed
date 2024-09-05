@@ -195,7 +195,7 @@ services:
     restart: always
 
   text-service:
-    image: deathstarbench/social-network-microservices:latest
+    image: socnet
     hostname: text-service
     #    ports:
     #      - 10007:9090

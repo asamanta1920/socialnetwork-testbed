@@ -21,6 +21,8 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include <json/value.h>
+#include <fstream>
 
 using namespace std::chrono_literals;
 
@@ -423,15 +425,19 @@ void ComposePostHandler::ComposePost(
 
   std::future_status status;
 
+  std::ifstream times_file("wait_times.json", std::ifstream::binary);
+  Json::Value times;
+  times_file >> times;
+
   // Handle post_future
   auto post_future = std::async(std::launch::async, [this, req_id, post, writer_text_map]() {
-      std::this_thread::sleep_for(10s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadPostHelper(req_id, post, writer_text_map);
   });
 
   outfile << "post_future waiting...\n";
   do {
-      switch (status = post_future.wait_for(1s)) {
+      switch (status = post_future.wait_for(times["post_future"]["time"])) {
           case std::future_status::deferred:
               outfile << "post_future deferred\n";
               break;
@@ -447,13 +453,13 @@ void ComposePostHandler::ComposePost(
 
   // Handle user_timeline_future
   auto user_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, writer_text_map]() {
-      std::this_thread::sleep_for(10s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadUserTimelineHelper(req_id, post.post_id, user_id, timestamp, writer_text_map);
   });
 
   outfile << "user_timeline_future waiting...\n";
   do {
-      switch (status = user_timeline_future.wait_for(1s)) {
+      switch (status = user_timeline_future.wait_for(times["user_timeline_future"]["time"])) {
           case std::future_status::deferred:
               outfile << "user_timeline_future deferred\n";
               break;
@@ -469,13 +475,13 @@ void ComposePostHandler::ComposePost(
 
   // Handle home_timeline_future
   auto home_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, user_mention_ids, writer_text_map]() {
-      std::this_thread::sleep_for(10s);
+      std::this_thread::sleep_for(20s);
       return this->_UploadHomeTimelineHelper(req_id, post.post_id, user_id, timestamp, user_mention_ids, writer_text_map);
   });
 
   outfile << "home_timeline_future waiting...\n";
   do {
-      switch (status = home_timeline_future.wait_for(1s)) {
+      switch (status = home_timeline_future.wait_for(times["home_timeline_future"]["time"])) {
           case std::future_status::deferred:
               outfile << "home_timeline_future deferred\n";
               break;

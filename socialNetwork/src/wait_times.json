@@ -1,0 +1,17 @@
+{
+    "post_future" : { 
+        "time": "1s"
+    },
+    "user_timeline_future" : { 
+        "time": "1s"
+    },
+    "home_timeline_future" : { 
+        "time": "1s"
+    },
+    "shortened_urls_future" : { 
+        "time": "1s"
+    },
+    "user_mention_future" : { 
+        "time": "1s"
+    }
+ }

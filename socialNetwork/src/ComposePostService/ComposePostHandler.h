@@ -30,6 +30,30 @@ using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
 
+std::chrono::seconds parse_duration(const std::string &str) {
+    // Regular expression to extract the number (assuming it's seconds)
+    std::regex regex("(\\d+)([smhd])");
+    std::smatch match;
+    
+    if (std::regex_match(str, match, regex)) {
+        int time_value = std::stoi(match[1].str());  // Extract the number
+        char time_unit = match[2].str()[0];          // Extract the time unit (s, m, h, d)
+
+        switch (time_unit) {
+            case 's':
+                return std::chrono::seconds(time_value);  // Return as seconds
+            case 'm':
+                return std::chrono::minutes(time_value);  // Return as minutes
+            case 'h':
+                return std::chrono::hours(time_value);    // Return as hours
+            case 'd':
+                return std::chrono::hours(time_value * 24);  // Return as days (converted to hours)
+        }
+    }
+
+    return std::chrono::seconds(0);  // Default to 0 if invalid input
+}
+
 class ComposePostHandler : public ComposePostServiceIf {
  public:
   ComposePostHandler(ClientPool<ThriftClient<PostStorageServiceClient>> *,
@@ -385,7 +409,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = text_future.wait_for(times["text_future"]["time"])) {
+      switch (status = text_future.wait_for(parse_duration(times["text_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -404,7 +428,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = creator_future.wait_for(times["creator_future"]["time"])) {
+      switch (status = creator_future.wait_for(parse_duration(times["creator_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -423,7 +447,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = media_future.wait_for(times["media_future"]["time"])) {
+      switch (status = media_future.wait_for(parse_duration(times["media_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -446,7 +470,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = unique_id_future.wait_for(times["unique_id_future"]["time"])) {
+      switch (status = unique_id_future.wait_for(parse_duration(times["unique_id_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -501,7 +525,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = post_future.wait_for(times["post_future"]["time"])) {
+      switch (status = post_future.wait_for(parse_duration(times["post_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -520,7 +544,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = user_timeline_future.wait_for(times["user_timeline_future"]["time"])) {
+      switch (status = user_timeline_future.wait_for(parse_duration(times["user_timeline_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -539,7 +563,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = home_timeline_future.wait_for(times["home_timeline_future"]["time"])) {
+      switch (status = home_timeline_future.wait_for(parse_duration(times["home_timeline_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:

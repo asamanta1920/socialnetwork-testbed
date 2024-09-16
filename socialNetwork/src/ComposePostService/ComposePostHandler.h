@@ -465,10 +465,6 @@ void ComposePostHandler::ComposePost(
   } while (media_future_status != std::future_status::ready);
   post.media = media_future.get();
   
-  auto unique_id_future = std::async(
-      std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this,
-      req_id, post_type, writer_text_map);
-
   // Handle unique_id_future
   std::future_status unique_id_future_status;
   auto unique_id_future = std::async(std::launch::async, [this, req_id, post_type, writer_text_map]() {

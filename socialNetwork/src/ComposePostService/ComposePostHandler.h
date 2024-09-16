@@ -30,10 +30,6 @@ using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
 
-std::ifstream times_file("../wait_times.json");
-nlohmann::json times;
-times_file >> times;
-
 class ComposePostHandler : public ComposePostServiceIf {
  public:
   ComposePostHandler(ClientPool<ThriftClient<PostStorageServiceClient>> *,
@@ -377,6 +373,10 @@ void ComposePostHandler::ComposePost(
   TextMapWriter writer(writer_text_map);
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
+
   // Handle text_future
   std::future_status status;
   auto text_future = std::async(std::launch::async, [this, req_id, text, writer_text_map]() {
@@ -485,6 +485,10 @@ void ComposePostHandler::ComposePost(
   //Before _UploadUserTimelineHelper and _UploadHomeTimelineHelper.
   //Change _UploadUserTimelineHelper and _UploadHomeTimelineHelper to deferred.
   //To let them start execute after post_future.get() return.
+
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
 
   // Handle post_future
   std::future_status status;

@@ -402,6 +402,12 @@ void ComposePostHandler::ComposePost(
   nlohmann::json times;
   times_file >> times;
 
+  Post post;
+  auto timestamp =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+          .count();
+  post.timestamp = timestamp;
+
   // Handle text_future
   std::future_status text_future_status;
   auto text_future = std::async(std::launch::async, [this, req_id, text, writer_text_map]() {
@@ -481,12 +487,6 @@ void ComposePostHandler::ComposePost(
       }
   } while (unique_id_future_status != std::future_status::ready);
   post.post_id = unique_id_future.get();
-
-  Post post;
-  auto timestamp =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
-  post.timestamp = timestamp;
 
   // try
   // {

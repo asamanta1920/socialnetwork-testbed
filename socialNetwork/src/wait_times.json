@@ -7,11 +7,5 @@
     },
     "home_timeline_future" : { 
         "time": "10s"
-    },
-    "shortened_urls_future" : { 
-        "time": "10s"
-    },
-    "user_mention_future" : { 
-        "time": "10s"
     }
  }

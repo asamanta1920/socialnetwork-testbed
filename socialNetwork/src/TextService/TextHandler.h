@@ -13,13 +13,8 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
-#include <json/value.h>
-#include <fstream>
 
 namespace social_network {
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::system_clock;
 
 class TextHandler : public TextServiceIf {
  public:
@@ -136,22 +131,8 @@ void TextHandler::ComposeText(
     return _return_user_mentions;
   });
 
-  std::ifstream times_file("wait_times.json", std::ifstream::binary);
-  Json::Value times;
-  times_file >> times;
-
   std::vector<Url> target_urls;
   try {
-    do {
-        switch (status = shortened_urls_future.wait_for(times["shortened_urls_future"]["time"])) {
-            case std::future_status::deferred:
-                break;
-            case std::future_status::timeout:
-                break;
-            case std::future_status::ready:
-                break;
-        }
-    } while (status != std::future_status::ready);
     target_urls = shortened_urls_future.get();
   } catch (...) {
     LOG(error) << "Failed to get shortened urls from url-shorten-service";
@@ -160,16 +141,6 @@ void TextHandler::ComposeText(
 
   std::vector<UserMention> user_mentions;
   try {
-    do {
-        switch (status = user_mention_future.wait_for(times["user_mention_future"]["time"])) {
-            case std::future_status::deferred:
-                break;
-            case std::future_status::timeout:
-                break;
-            case std::future_status::ready:
-                break;
-        }
-    } while (status != std::future_status::ready);
     user_mentions = user_mention_future.get();
   } catch (...) {
     LOG(error) << "Failed to upload user mentions to user-mention-service";

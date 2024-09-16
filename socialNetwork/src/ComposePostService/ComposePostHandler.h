@@ -31,7 +31,7 @@ using std::chrono::milliseconds;
 using std::chrono::system_clock;
 
 std::ifstream times_file("../wait_times.json");
-json times;
+nlohmann::json times;
 times_file >> times;
 
 class ComposePostHandler : public ComposePostServiceIf {

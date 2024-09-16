@@ -1,4 +1,16 @@
 {
+    "text_future" : {
+        "time": "10s"
+    },
+    "creator_future" : {
+        "time": "10s"
+    },
+    "media_future" : {
+        "time": "10s"
+    },
+    "unique_id_future" : {
+        "time": "10s"
+    },
     "post_future" : { 
         "time": "10s"
     },

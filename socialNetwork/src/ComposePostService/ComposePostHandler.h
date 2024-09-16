@@ -2,6 +2,7 @@
 #define SOCIAL_NETWORK_MICROSERVICES_SRC_COMPOSEPOSTSERVICE_COMPOSEPOSTHANDLER_H_
 
 #include <chrono>
+#include <regex>
 #include <future>
 #include <iostream>
 #include <nlohmann/json.hpp>

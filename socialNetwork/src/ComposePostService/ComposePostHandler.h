@@ -403,14 +403,14 @@ void ComposePostHandler::ComposePost(
   times_file >> times;
 
   // Handle text_future
-  std::future_status status;
+  std::future_status text_future_status;
   auto text_future = std::async(std::launch::async, [this, req_id, text, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_ComposeTextHelper(req_id, text, writer_text_map);
   });
 
   do {
-      switch (status = text_future.wait_for(parse_duration(times["text_future"]["time"]))) {
+      switch (text_future_status = text_future.wait_for(parse_duration(times["text_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -418,18 +418,18 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (text_future_status != std::future_status::ready);
   auto text_return = text_future.get();
   
   // Handle creator_future
-  std::future_status status;
+  std::future_status creator_future_status;
   auto creator_future = std::async(std::launch::async, [this, req_id, user_id, username, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_ComposeCreaterHelper(req_id, user_id, username, writer_text_map);
   });
 
   do {
-      switch (status = creator_future.wait_for(parse_duration(times["creator_future"]["time"]))) {
+      switch (creator_future_status = creator_future.wait_for(parse_duration(times["creator_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -437,18 +437,18 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (creator_future_status != std::future_status::ready);
   post.creator = creator_future.get();
 
   // Handle media_future
-  std::future_status status;
+  std::future_status media_future_status;
   auto media_future = std::async(std::launch::async, [this, req_id, media_types, media_ids, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_ComposeMediaHelper(req_id, media_types, media_ids, writer_text_map);
   });
 
   do {
-      switch (status = media_future.wait_for(parse_duration(times["media_future"]["time"]))) {
+      switch (media_future_status = media_future.wait_for(parse_duration(times["media_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -456,7 +456,7 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (media_future_status != std::future_status::ready);
   post.media = media_future.get();
   
   auto unique_id_future = std::async(
@@ -464,14 +464,14 @@ void ComposePostHandler::ComposePost(
       req_id, post_type, writer_text_map);
 
   // Handle unique_id_future
-  std::future_status status;
+  std::future_status unique_id_future_status;
   auto unique_id_future = std::async(std::launch::async, [this, req_id, post_type, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_ComposeUniqueIdHelper(req_id, post_type, writer_text_map);
   });
 
   do {
-      switch (status = unique_id_future.wait_for(parse_duration(times["unique_id_future"]["time"]))) {
+      switch (unique_id_future_status = unique_id_future.wait_for(parse_duration(times["unique_id_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -479,7 +479,7 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (unique_id_future_status != std::future_status::ready);
   post.post_id = unique_id_future.get();
 
   Post post;
@@ -516,7 +516,7 @@ void ComposePostHandler::ComposePost(
   times_file >> times;
 
   // Handle post_future
-  std::future_status status;
+  std::future_status post_future_status;
   // auto post_future =
   //     std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
   //                this, req_id, post, writer_text_map);
@@ -526,7 +526,7 @@ void ComposePostHandler::ComposePost(
   });
 
   do {
-      switch (status = post_future.wait_for(parse_duration(times["post_future"]["time"]))) {
+      switch (post_future_status = post_future.wait_for(parse_duration(times["post_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -534,18 +534,18 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (post_future_status != std::future_status::ready);
   post_future.get();
 
   // Handle user_timeline_future
-  std::future_status status;
+  std::future_status user_timeline_future_status;
   auto user_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_UploadUserTimelineHelper(req_id, post.post_id, user_id, timestamp, writer_text_map);
   });
 
   do {
-      switch (status = user_timeline_future.wait_for(parse_duration(times["user_timeline_future"]["time"]))) {
+      switch (user_timeline_future_status = user_timeline_future.wait_for(parse_duration(times["user_timeline_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -553,18 +553,18 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (user_timeline_future_status != std::future_status::ready);
   user_timeline_future.get();
 
   // Handle home_timeline_future
-  std::future_status status;
+  std::future_status home_timeline_future_status;
   auto home_timeline_future = std::async(std::launch::deferred, [this, req_id, post, user_id, timestamp, user_mention_ids, writer_text_map]() {
       std::this_thread::sleep_for(20s);
       return this->_UploadHomeTimelineHelper(req_id, post.post_id, user_id, timestamp, user_mention_ids, writer_text_map);
   });
 
   do {
-      switch (status = home_timeline_future.wait_for(parse_duration(times["home_timeline_future"]["time"]))) {
+      switch (home_timeline_future_status = home_timeline_future.wait_for(parse_duration(times["home_timeline_future"]["time"]))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -572,7 +572,7 @@ void ComposePostHandler::ComposePost(
           case std::future_status::ready:
               break;
       }
-  } while (status != std::future_status::ready);
+  } while (home_timeline_future_status != std::future_status::ready);
   home_timeline_future.get();
 
 

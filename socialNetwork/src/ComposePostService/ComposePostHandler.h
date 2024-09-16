@@ -506,11 +506,7 @@ void ComposePostHandler::ComposePost(
   //Before _UploadUserTimelineHelper and _UploadHomeTimelineHelper.
   //Change _UploadUserTimelineHelper and _UploadHomeTimelineHelper to deferred.
   //To let them start execute after post_future.get() return.
-
-  std::ifstream times_file("../wait_times.json");
-  nlohmann::json times;
-  times_file >> times;
-
+  
   // Handle post_future
   std::future_status post_future_status;
   // auto post_future =

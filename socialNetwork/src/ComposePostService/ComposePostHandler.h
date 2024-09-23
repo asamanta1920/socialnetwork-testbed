@@ -35,7 +35,7 @@ using std::chrono::system_clock;
 std::chrono::seconds parse_duration(const std::string &str) {
     // Regular expression to extract the number (assuming it's seconds)
     regex regex("(\\d+)([smhd])");
-    smatch match;
+    std::smatch match;
     
     if (regex_match(str, match, regex)) {
         int time_value = std::stoi(match[1].str());  // Extract the number

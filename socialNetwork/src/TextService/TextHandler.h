@@ -19,7 +19,7 @@ namespace social_network {
 
 std::chrono::seconds parse_duration(const std::string &str) {
     // Regular expression to extract the number (assuming it's seconds)
-    regex regex("(\\d+)([smhd])");
+    std::regex regex("(\\d+)([smhd])");
     std::smatch match;
     
     if (regex_match(str, match, regex)) {

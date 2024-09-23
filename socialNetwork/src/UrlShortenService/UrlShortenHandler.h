@@ -23,10 +23,10 @@ namespace social_network {
 
 std::chrono::seconds parse_duration(const std::string &str) {
     // Regular expression to extract the number (assuming it's seconds)
-    std::regex regex("(\\d+)([smhd])");
-    std::smatch match;
+    regex regex("(\\d+)([smhd])");
+    smatch match;
     
-    if (std::regex_match(str, match, regex)) {
+    if (regex_match(str, match, regex)) {
         int time_value = std::stoi(match[1].str());  // Extract the number
         char time_unit = match[2].str()[0];          // Extract the time unit (s, m, h, d)
 

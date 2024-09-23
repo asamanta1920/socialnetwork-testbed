@@ -95,7 +95,7 @@ void TextHandler::ComposeText(
     s = m.suffix().str();
   }
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
   // Handle shortened_urls_future

@@ -326,7 +326,7 @@ void UserTimelineHandler::ReadUserTimeline(
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
   }
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
   // Handle post_future

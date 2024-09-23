@@ -398,7 +398,7 @@ void ComposePostHandler::ComposePost(
   TextMapWriter writer(writer_text_map);
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
 

@@ -142,7 +142,7 @@ void SocialGraphHandler::Follow(
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
 
@@ -378,7 +378,7 @@ void SocialGraphHandler::Unfollow(
       "unfollow_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
   // Handle mongo_update_follower_future
@@ -940,7 +940,7 @@ void SocialGraphHandler::FollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
   // Handle user_id_future
@@ -1041,7 +1041,7 @@ void SocialGraphHandler::UnfollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  std::ifstream times_file("../wait_times.json");
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
   // Handle user_id_future

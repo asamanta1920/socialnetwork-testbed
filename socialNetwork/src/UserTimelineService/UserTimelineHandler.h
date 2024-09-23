@@ -8,6 +8,8 @@
 #include <future>
 #include <iostream>
 #include <string>
+#include <regex>
+#include <smatch>
 
 #include "../../gen-cpp/PostStorageService.h"
 #include "../../gen-cpp/UserTimelineService.h"

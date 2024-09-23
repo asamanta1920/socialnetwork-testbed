@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <regex>
+#include <smatch>
 #include <future>
 #include <iostream>
 #include <nlohmann/json.hpp>

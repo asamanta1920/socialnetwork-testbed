@@ -4,6 +4,8 @@
 #include <random>
 #include <chrono>
 #include <future>
+#include <regex>
+#include <smatch>
 
 #include <mongoc.h>
 #include <libmemcached/memcached.h>

@@ -5,6 +5,7 @@
 #include <chrono>
 #include <future>
 #include <regex>
+#include <nlohmann/json.hpp>
 
 #include <mongoc.h>
 #include <libmemcached/memcached.h>
@@ -117,6 +118,10 @@ void UrlShortenHandler::ComposeUrls(
           _GenRandomStr(10);
       target_urls.emplace_back(new_target_url);
     }
+
+    std::ifstream times_file("../wait_times.json");
+    nlohmann::json times;
+    times_file >> times;
 
     // Handle mongo_future
     std::future_status mongo_future_status;

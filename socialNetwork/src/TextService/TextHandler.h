@@ -5,6 +5,7 @@
 #include <iostream>
 #include <regex>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "../../gen-cpp/TextService.h"
 #include "../../gen-cpp/UrlShortenService.h"
@@ -94,6 +95,9 @@ void TextHandler::ComposeText(
     s = m.suffix().str();
   }
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
   // Handle shortened_urls_future
   std::future_status shortened_urls_future_status;
   auto shortened_urls_future = std::async(std::launch::async, [&]() {

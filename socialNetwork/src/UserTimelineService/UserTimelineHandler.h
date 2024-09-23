@@ -4,6 +4,7 @@
 #include <bson/bson.h>
 #include <mongoc.h>
 #include <sw/redis++/redis++.h>
+#include <nlohmann/json.hpp>
 
 #include <future>
 #include <iostream>
@@ -325,6 +326,9 @@ void UserTimelineHandler::ReadUserTimeline(
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
   }
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
   // Handle post_future
   std::future_status post_future_status;
   std::future<std::vector<Post>> post_future =

@@ -4,6 +4,7 @@
 #include <bson/bson.h>
 #include <mongoc.h>
 #include <sw/redis++/redis++.h>
+#include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <future>
@@ -140,6 +141,10 @@ void SocialGraphHandler::Follow(
   int64_t timestamp =
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
+
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
 
   // Handle mongo_update_follower_future
   std::future_status mongo_update_follower_future_status;
@@ -373,6 +378,9 @@ void SocialGraphHandler::Unfollow(
       "unfollow_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
   // Handle mongo_update_follower_future
   std::future_status mongo_update_follower_future_status;
   std::future<void> mongo_update_follower_future =
@@ -932,6 +940,9 @@ void SocialGraphHandler::FollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
   // Handle user_id_future
   std::future_status user_id_future_status;
   std::future<int64_t> user_id_future = std::async(std::launch::async, [&]() {
@@ -1030,6 +1041,9 @@ void SocialGraphHandler::UnfollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  std::ifstream times_file("../wait_times.json");
+  nlohmann::json times;
+  times_file >> times;
   // Handle user_id_future
   std::future_status user_id_future_status;
   std::future<int64_t> user_id_future = std::async(std::launch::async, [&]() {

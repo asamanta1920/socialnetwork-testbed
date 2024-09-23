@@ -4,7 +4,6 @@
 #include <future>
 #include <iostream>
 #include <regex>
-#include <smatch>
 #include <string>
 
 #include "../../gen-cpp/TextService.h"

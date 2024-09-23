@@ -12,7 +12,6 @@
 #include <thread>
 #include <vector>
 #include <regex>
-#include <smatch>
 
 #include "../../gen-cpp/SocialGraphService.h"
 #include "../../gen-cpp/UserService.h"

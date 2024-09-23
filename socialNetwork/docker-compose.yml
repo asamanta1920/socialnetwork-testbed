@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   social-graph-service:
-    image: deathstarbench/social-network-microservices:latest
+    image: socnet
     hostname: social-graph-service
     #    ports:
     #      - 10000:9090
@@ -79,7 +79,7 @@ services:
     restart: always
 
   user-timeline-service:
-    image: deathstarbench/social-network-microservices:latest
+    image: socnet
     hostname: user-timeline-service
     #    ports:
     #      - 10003:9090
@@ -108,7 +108,7 @@ services:
     restart: always
 
   url-shorten-service:
-    image: deathstarbench/social-network-microservices:latest
+    image: socnet
     hostname: url-shorten-service
     #    ports:
     #      - 10004:9090

@@ -1,23 +1,50 @@
 {
-    "text_future" : {
+    "ComposePostService-text_future" : {
         "time": "10s"
     },
-    "creator_future" : {
+    "ComposePostService-creator_future" : {
         "time": "10s"
     },
-    "media_future" : {
+    "ComposePostService-media_future" : {
         "time": "10s"
     },
-    "unique_id_future" : {
+    "ComposePostService-unique_id_future" : {
         "time": "10s"
     },
-    "post_future" : { 
+    "ComposePostService-post_future" : { 
         "time": "10s"
     },
-    "user_timeline_future" : { 
+    "ComposePostService-user_timeline_future" : { 
         "time": "10s"
     },
-    "home_timeline_future" : { 
+    "ComposePostService-home_timeline_future" : { 
         "time": "10s"
+    },
+    "TextService-shortened_urls_future" : {
+        "time": "10s"    
+    },
+    "TextService-user_mention_future" : {
+        "time": "10s"    
+    },
+    "UrlShortenService-mongo_future" : {
+        "time": "10s"    
+    },
+    "SocialGraphService-mongo_update_follower_future" : {
+        "time": "10s"    
+    },
+    "SocialGraphService-mongo_update_followee_future" : {
+        "time": "10s"    
+    },
+    "SocialGraphService-redis_update_future" : {
+        "time": "10s"    
+    },
+    "SocialGraphService-user_id_future" : {
+        "time": "10s"    
+    },
+    "SocialGraphService-followee_id_future" : {
+        "time": "10s"    
+    },
+    "UserTimelineService-post_future" : {
+        "time": "10s"    
     }
  }

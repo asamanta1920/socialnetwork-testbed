@@ -116,6 +116,8 @@ void SocialGraphHandler::Follow(
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
 
+  // Handle mongo_update_follower_future
+  std::future_status mongo_update_follower_future_status;
   std::future<void> mongo_update_follower_future =
       std::async(std::launch::async, [&]() {
         mongoc_client_t *mongodb_client =
@@ -172,7 +174,19 @@ void SocialGraphHandler::Follow(
         mongoc_collection_destroy(collection);
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
       });
+  do {
+      switch (mongo_update_follower_future_status = mongo_update_follower_future.wait_for(parse_duration(times["SocialGraphService-mongo_update_follower_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (mongo_update_follower_future_status != std::future_status::ready);
 
+  // Handle mongo_update_followee_future
+  std::future_status mongo_update_followee_future_status;
   std::future<void> mongo_update_followee_future =
       std::async(std::launch::async, [&]() {
         mongoc_client_t *mongodb_client =
@@ -229,7 +243,19 @@ void SocialGraphHandler::Follow(
         mongoc_collection_destroy(collection);
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
       });
+  do {
+      switch (mongo_update_followee_future_status = mongo_update_followee_future.wait_for(parse_duration(times["SocialGraphService-mongo_update_followee_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (mongo_update_followee_future_status != std::future_status::ready);
 
+  // Handle redis_update_future
+  std::future_status redis_update_future_status;
   std::future<void> redis_update_future = std::async(std::launch::async, [&]() {
     auto redis_span = opentracing::Tracer::Global()->StartSpan(
         "social_graph_redis_update_client",
@@ -285,6 +311,16 @@ void SocialGraphHandler::Follow(
     }
     redis_span->Finish();
   });
+  do {
+      switch (redis_update_future_status = redis_update_future.wait_for(parse_duration(times["SocialGraphService-redis_update_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (redis_update_future_status != std::future_status::ready);
 
   try {
     redis_update_future.get();
@@ -312,6 +348,8 @@ void SocialGraphHandler::Unfollow(
       "unfollow_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  // Handle mongo_update_follower_future
+  std::future_status mongo_update_follower_future_status;
   std::future<void> mongo_update_follower_future =
       std::async(std::launch::async, [&]() {
         mongoc_client_t *mongodb_client =
@@ -365,7 +403,19 @@ void SocialGraphHandler::Unfollow(
         mongoc_collection_destroy(collection);
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
       });
+  do {
+      switch (mongo_update_follower_future_status = mongo_update_follower_future.wait_for(parse_duration(times["SocialGraphService-mongo_update_follower_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (mongo_update_follower_future_status != std::future_status::ready);
 
+  // Handle mongo_update_followee_future   
+  std::future_status mongo_update_followee_future_status;
   std::future<void> mongo_update_followee_future =
       std::async(std::launch::async, [&]() {
         mongoc_client_t *mongodb_client =
@@ -419,7 +469,19 @@ void SocialGraphHandler::Unfollow(
         mongoc_collection_destroy(collection);
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
       });
+  do {
+      switch (mongo_update_followee_future_status = mongo_update_followee_future.wait_for(parse_duration(times["SocialGraphService-mongo_update_followee_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (mongo_update_followee_future_status != std::future_status::ready);
 
+  // Handle redis_update_future
+  std::future_status redis_update_future_status;
   std::future<void> redis_update_future = std::async(std::launch::async, [&]() {
     auto redis_span = opentracing::Tracer::Global()->StartSpan(
         "social_graph_redis_update_client",
@@ -470,6 +532,16 @@ void SocialGraphHandler::Unfollow(
     }
     redis_span->Finish();
   });
+  do {
+      switch (redis_update_future_status = redis_update_future.wait_for(parse_duration(times["SocialGraphService-redis_update_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (redis_update_future_status != std::future_status::ready);  
 
   try {
     redis_update_future.get();
@@ -835,6 +907,8 @@ void SocialGraphHandler::FollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  // Handle user_id_future
+  std::future_status user_id_future_status;
   std::future<int64_t> user_id_future = std::async(std::launch::async, [&]() {
     auto user_client_wrapper = _user_service_client_pool->Pop();
     if (!user_client_wrapper) {
@@ -855,7 +929,19 @@ void SocialGraphHandler::FollowWithUsername(
     _user_service_client_pool->Keepalive(user_client_wrapper);
     return _return;
   });
+  do {
+      switch (user_id_future_status = user_id_future.wait_for(parse_duration(times["SocialGraphService-user_id_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (user_id_future_status != std::future_status::ready);
 
+  // Handle followee_id_future
+  std::future_status followee_id_future_status;
   std::future<int64_t> followee_id_future =
       std::async(std::launch::async, [&]() {
         auto user_client_wrapper = _user_service_client_pool->Pop();
@@ -878,6 +964,16 @@ void SocialGraphHandler::FollowWithUsername(
         _user_service_client_pool->Keepalive(user_client_wrapper);
         return _return;
       });
+  do {
+      switch (followee_id_future_status = followee_id_future.wait_for(parse_duration(times["SocialGraphService-followee_id_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (followee_id_future_status != std::future_status::ready);
 
   int64_t user_id;
   int64_t followee_id;
@@ -909,6 +1005,8 @@ void SocialGraphHandler::UnfollowWithUsername(
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  // Handle user_id_future
+  std::future_status user_id_future_status;
   std::future<int64_t> user_id_future = std::async(std::launch::async, [&]() {
     auto user_client_wrapper = _user_service_client_pool->Pop();
     if (!user_client_wrapper) {
@@ -929,7 +1027,19 @@ void SocialGraphHandler::UnfollowWithUsername(
     _user_service_client_pool->Keepalive(user_client_wrapper);
     return _return;
   });
+  do {
+      switch (user_id_future_status = user_id_future.wait_for(parse_duration(times["SocialGraphService-user_id_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (user_id_future_status != std::future_status::ready);
 
+  // Handle followee_id_future
+  std::future_status followee_id_future_status;
   std::future<int64_t> followee_id_future =
       std::async(std::launch::async, [&]() {
         auto user_client_wrapper = _user_service_client_pool->Pop();
@@ -952,6 +1062,16 @@ void SocialGraphHandler::UnfollowWithUsername(
         _user_service_client_pool->Keepalive(user_client_wrapper);
         return _return;
       });
+  do {
+      switch (followee_id_future_status = followee_id_future.wait_for(parse_duration(times["SocialGraphService-followee_id_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (followee_id_future_status != std::future_status::ready);
 
   int64_t user_id;
   int64_t followee_id;

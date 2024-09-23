@@ -300,6 +300,8 @@ void UserTimelineHandler::ReadUserTimeline(
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
   }
 
+  // Handle post_future
+  std::future_status post_future_status;
   std::future<std::vector<Post>> post_future =
       std::async(std::launch::async, [&]() {
         auto post_client_wrapper = _post_client_pool->Pop();
@@ -322,6 +324,17 @@ void UserTimelineHandler::ReadUserTimeline(
         _post_client_pool->Keepalive(post_client_wrapper);
         return _return_posts;
       });
+  do {
+      switch (post_future_status = post_future.wait_for(parse_duration(times["UserTimelineService-post_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (post_future_status != std::future_status::ready);
+
 
   if (redis_update_map.size() > 0) {
     auto redis_update_span = opentracing::Tracer::Global()->StartSpan(

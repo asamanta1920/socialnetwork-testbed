@@ -93,6 +93,8 @@ void UrlShortenHandler::ComposeUrls(
       target_urls.emplace_back(new_target_url);
     }
 
+    // Handle mongo_future
+    std::future_status mongo_future_status;
     mongo_future = std::async(
         std::launch::async, [&](){
           mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
@@ -149,6 +151,17 @@ void UrlShortenHandler::ComposeUrls(
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           mongo_span->Finish();
         });
+    do {
+        switch (mongo_future_status = mongo_future.wait_for(parse_duration(times["UrlShortenService-mongo_future"]["time"]))) {
+            case std::future_status::deferred:
+                break;
+            case std::future_status::timeout:
+                break;
+            case std::future_status::ready:
+                break;
+        }
+    } while (mongo_future_status != std::future_status::ready);
+      
 
   }
 

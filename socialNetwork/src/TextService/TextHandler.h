@@ -70,6 +70,8 @@ void TextHandler::ComposeText(
     s = m.suffix().str();
   }
 
+  // Handle shortened_urls_future
+  std::future_status shortened_urls_future_status;
   auto shortened_urls_future = std::async(std::launch::async, [&]() {
     auto url_span = opentracing::Tracer::Global()->StartSpan(
         "compose_urls_client", {opentracing::ChildOf(&span->context())});
@@ -97,7 +99,19 @@ void TextHandler::ComposeText(
     _url_client_pool->Keepalive(url_client_wrapper);
     return _return_urls;
   });
+  do {
+      switch (shortened_urls_future_status = shortened_urls_future.wait_for(parse_duration(times["TextService-shortened_urls_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (shortened_urls_future_status != std::future_status::ready);
 
+  // Handle user_mention_future
+  std::future_status user_mention_future_status;
   auto user_mention_future = std::async(std::launch::async, [&]() {
     auto user_mention_span = opentracing::Tracer::Global()->StartSpan(
         "compose_user_mentions_client",
@@ -130,6 +144,16 @@ void TextHandler::ComposeText(
     _user_mention_client_pool->Keepalive(user_mention_client_wrapper);
     return _return_user_mentions;
   });
+  do {
+      switch (user_mention_future_status = user_mention_future.wait_for(parse_duration(times["TextService-user_mention_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (user_mention_future_status != std::future_status::ready);
 
   std::vector<Url> target_urls;
   try {

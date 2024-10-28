@@ -400,7 +400,10 @@ void ComposePostHandler::ComposePost(
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
 
+
+
   LOG(info) << "Test 1";
+  print("Test 1")
 
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);

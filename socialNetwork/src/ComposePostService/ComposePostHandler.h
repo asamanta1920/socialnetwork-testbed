@@ -540,9 +540,9 @@ void ComposePostHandler::ComposePost(
 
   home_timeline_future.get();
 
-  auto end_time = std::chrono::system_clock::now();  // End timer on success
+  auto end_time = std::chrono::system_clock::now();
   auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-  LOG(info) << "ComposePost latency: " << latency << " ms";
+  LOG(error) << "ComposePost latency: " << latency << " ms";
 
 
   span->Finish();

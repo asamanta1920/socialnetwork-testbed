@@ -504,6 +504,8 @@ void ComposePostHandler::ComposePost(
       }
   } while (post_future_status != std::future_status::ready);
 
+  post_future.get();
+
   // Handle user_timeline_future
   std::future_status user_timeline_future_status;
   auto user_timeline_future = std::async(std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this, req_id, post.post_id, user_id, timestamp, writer_text_map);
@@ -517,6 +519,10 @@ void ComposePostHandler::ComposePost(
               break;
       }
   } while (user_timeline_future_status != std::future_status::ready);
+
+  user_timeline_future.get();
+
+  auto start_time = std::chrono::system_clock::now(); 
 
   // Handle home_timeline_future
   std::future_status home_timeline_future_status;
@@ -532,9 +538,11 @@ void ComposePostHandler::ComposePost(
       }
   } while (home_timeline_future_status != std::future_status::ready);
 
-  post_future.get();
-  user_timeline_future.get();
   home_timeline_future.get();
+
+  auto end_time = std::chrono::system_clock::now();  // End timer on success
+  auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+  LOG(info) << "ComposePost latency: " << latency << " ms";
 
 
   span->Finish();

@@ -138,6 +138,7 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
     int64_t req_id, int64_t user_id, const std::string &username,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 7";
+  cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -176,6 +177,7 @@ TextServiceReturn ComposePostHandler::_ComposeTextHelper(
     int64_t req_id, const std::string &text,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 7";
+  cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -215,6 +217,7 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
     const std::vector<int64_t> &media_ids,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 6";
+  cout << "Test 6";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -254,6 +257,7 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
     int64_t req_id, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 5";
+  cout << "Test 5";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -292,6 +296,7 @@ void ComposePostHandler::_UploadPostHelper(
     int64_t req_id, const Post &post,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 4";
+  cout << "Test 4";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -326,6 +331,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::map<std::string, std::string> &carrier) {
   LOG(info) << "Test 3";
+  cout << "Test 3";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -362,6 +368,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     const std::map<std::string, std::string> &carrier) {
 
   LOG(info) << "Test 2";
+  cout << "Test 2";
 
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
@@ -403,7 +410,7 @@ void ComposePostHandler::ComposePost(
 
 
   LOG(info) << "Test 1";
-  print("Test 1")
+  cout << "Test 1";
 
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);

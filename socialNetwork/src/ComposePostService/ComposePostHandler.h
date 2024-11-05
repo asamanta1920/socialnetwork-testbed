@@ -551,8 +551,6 @@ void ComposePostHandler::ComposePost(
 
   user_timeline_future.get();
 
-  auto start_time = std::chrono::system_clock::now(); 
-
   // Handle home_timeline_future
   std::future_status home_timeline_future_status;
   auto home_timeline_future = std::async(std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this, req_id, post.post_id, user_id, timestamp, user_mention_ids, writer_text_map);

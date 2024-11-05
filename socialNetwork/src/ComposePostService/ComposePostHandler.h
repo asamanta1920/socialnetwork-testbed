@@ -409,8 +409,8 @@ void ComposePostHandler::ComposePost(
 
 
 
-  LOG(info) << "Test 1";
-  std::cout << "Test 1";
+//   LOG(info) << "Test 1";
+//   std::cout << "Test 1";
 
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
@@ -423,6 +423,8 @@ void ComposePostHandler::ComposePost(
   std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/wait_times.json");
   nlohmann::json times;
   times_file >> times;
+
+  auto start_time = std::chrono::system_clock::now(); 
 
   // Handle text_future
   std::future_status text_future_status;
@@ -437,6 +439,11 @@ void ComposePostHandler::ComposePost(
               break;
       }
   } while (text_future_status != std::future_status::ready);
+
+  auto end_time = std::chrono::system_clock::now();
+  auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+  LOG(info) << "ComposePost latency: " << latency << " ms";
+
 
   // Handle creator_future
   std::future_status creator_future_status;
@@ -561,10 +568,6 @@ void ComposePostHandler::ComposePost(
   } while (home_timeline_future_status != std::future_status::ready);
 
   home_timeline_future.get();
-
-  auto end_time = std::chrono::system_clock::now();
-  auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-  LOG(info) << "ComposePost latency: " << latency << " ms";
 
   span->Finish();
 }

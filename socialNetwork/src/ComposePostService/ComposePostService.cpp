@@ -108,6 +108,7 @@ int main(int argc, char *argv[]) {
       std::make_shared<TFramedTransportFactory>(),
       std::make_shared<TBinaryProtocolFactory>());
   LOG(info) << "Starting the compose-post-service server ...";
+  LOG(info) << "Initial update message ...";
   server.serve();
   LOG(info) << "Updated ComposePostService Test ...";
 }

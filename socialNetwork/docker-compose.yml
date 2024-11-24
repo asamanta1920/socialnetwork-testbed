@@ -37,7 +37,7 @@ services:
     restart: always
 
   compose-post-service:
-    image: socnet
+    image: deathstarbench/social-network-microservices:latest
     hostname: compose-post-service
     #    ports:
     #      - 10001:9090

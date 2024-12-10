@@ -2,6 +2,7 @@
 #define SOCIAL_NETWORK_MICROSERVICES_SRC_COMPOSEPOSTSERVICE_COMPOSEPOSTHANDLER_H_
 
 #include <chrono>
+#include <regex>
 #include <future>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -21,12 +22,38 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include <fstream>
+
+using namespace std::chrono_literals;
 
 namespace social_network {
-using json = nlohmann::json;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
+
+std::chrono::seconds parse_duration(const std::string &str) {
+    // Regular expression to extract the number (assuming it's seconds)
+    std::regex regex("(\\d+)([smhd])");
+    std::smatch match;
+    
+    if (regex_match(str, match, regex)) {
+        int time_value = std::stoi(match[1].str());  // Extract the number
+        char time_unit = match[2].str()[0];          // Extract the time unit (s, m, h, d)
+
+        switch (time_unit) {
+            case 's':
+                return std::chrono::seconds(time_value);  // Return as seconds
+            case 'm':
+                return std::chrono::minutes(time_value);  // Return as minutes
+            case 'h':
+                return std::chrono::hours(time_value);    // Return as hours
+            case 'd':
+                return std::chrono::hours(time_value * 24);  // Return as days (converted to hours)
+        }
+    }
+
+    return std::chrono::seconds(0);  // Default to 0 if invalid input
+}
 
 class ComposePostHandler : public ComposePostServiceIf {
  public:
@@ -110,6 +137,8 @@ ComposePostHandler::ComposePostHandler(
 Creator ComposePostHandler::_ComposeCreaterHelper(
     int64_t req_id, int64_t user_id, const std::string &username,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 7";
+  std::cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -147,6 +176,8 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
 TextServiceReturn ComposePostHandler::_ComposeTextHelper(
     int64_t req_id, const std::string &text,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 7";
+  std::cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -185,6 +216,8 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
     int64_t req_id, const std::vector<std::string> &media_types,
     const std::vector<int64_t> &media_ids,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 6";
+  std::cout << "Test 6";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -223,6 +256,8 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
 int64_t ComposePostHandler::_ComposeUniqueIdHelper(
     int64_t req_id, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 5";
+  std::cout << "Test 5";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -260,6 +295,8 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
 void ComposePostHandler::_UploadPostHelper(
     int64_t req_id, const Post &post,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 4";
+  std::cout << "Test 4";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -293,6 +330,8 @@ void ComposePostHandler::_UploadPostHelper(
 void ComposePostHandler::_UploadUserTimelineHelper(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::map<std::string, std::string> &carrier) {
+  LOG(info) << "Test 3";
+  std::cout << "Test 3";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -327,6 +366,10 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::vector<int64_t> &user_mentions_id,
     const std::map<std::string, std::string> &carrier) {
+
+  LOG(info) << "Test 2";
+  std::cout << "Test 2";
+
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -363,6 +406,12 @@ void ComposePostHandler::ComposePost(
     const std::string &text, const std::vector<int64_t> &media_ids,
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
+
+
+
+//   LOG(info) << "Test 1";
+//   std::cout << "Test 1";
+
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -370,6 +419,10 @@ void ComposePostHandler::ComposePost(
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   opentracing::Tracer::Global()->Inject(span->context(), writer);
+
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/timeout_values.json");
+  nlohmann::json times;
+  times_file >> times;
 
   auto text_future =
       std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
@@ -380,9 +433,23 @@ void ComposePostHandler::ComposePost(
   auto media_future =
       std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
                  this, req_id, media_types, media_ids, writer_text_map);
-  auto unique_id_future = std::async(
-      std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this,
-      req_id, post_type, writer_text_map);
+  // auto unique_id_future = std::async(
+  //     std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this,
+  //     req_id, post_type, writer_text_map);
+
+  // Handle unique_id_future
+  std::future_status unique_id_future_status;
+  auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
+  do {
+      switch (unique_id_future_status = unique_id_future.wait_for(parse_duration(times["ComposePostService-unique_id_future"]["time"]))) {
+          case std::future_status::deferred:
+              break;
+          case std::future_status::timeout:
+              break;
+          case std::future_status::ready:
+              break;
+      }
+  } while (unique_id_future_status != std::future_status::ready);
 
   Post post;
   auto timestamp =
@@ -392,7 +459,17 @@ void ComposePostHandler::ComposePost(
 
   // try
   // {
+  auto start_time = std::chrono::system_clock::now(); 
   post.post_id = unique_id_future.get();
+  auto end_time = std::chrono::system_clock::now();
+  auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+  LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
+
+  times["ComposePostService-unique_id_future"]["time"] = std::to_string(latency) + "ms";
+  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/timeout_values.json");
+  output_times_file << times.dump(4);
+  output_times_file.close();
+
   post.creator = creator_future.get();
   post.media = media_future.get();
   auto text_return = text_future.get();
@@ -437,6 +514,7 @@ void ComposePostHandler::ComposePost(
   // {
   //   throw;
   // }
+
   span->Finish();
 }
 

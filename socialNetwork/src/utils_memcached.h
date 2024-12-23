@@ -22,7 +22,6 @@ memcached_pool_st *init_memcached_client_pool(
   if (use_binary_protocol == 1) {
     memcached_behavior_set(memcached_client, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
   }
-
   auto memcached_client_pool =
       memcached_pool_create(memcached_client, min_size, max_size);
   return memcached_client_pool;

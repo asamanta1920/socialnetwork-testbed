@@ -409,8 +409,8 @@ void ComposePostHandler::ComposePost(
 
 
 
-//   LOG(info) << "Test 1";
-//   std::cout << "Test 1";
+  LOG(info) << "Test 1";
+  std::cout << "Test 1";
 
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);

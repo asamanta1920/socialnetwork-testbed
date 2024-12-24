@@ -25,6 +25,7 @@
 #include <fstream>
 
 using namespace std::chrono_literals;
+using json = nlohmann::json;
 
 namespace social_network {
 using std::chrono::duration_cast;
@@ -423,7 +424,7 @@ void ComposePostHandler::ComposePost(
   LOG(info) << "compose_post opentracing completed";
 
   std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.json");
-  nlohmann::json times_file = nlohmann::json::parse(times);
+  json times_file = json::parse(times);
   times_file.close();
 
   LOG(info) << "compose_post accessed JSON completed";

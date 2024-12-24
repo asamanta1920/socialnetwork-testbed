@@ -420,9 +420,13 @@ void ComposePostHandler::ComposePost(
   TextMapWriter writer(writer_text_map);
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/timeout_values.json");
+  LOG(info) << "compose_post opentracing completed";
+
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.json");
   nlohmann::json times;
   times_file >> times;
+
+  LOG(info) << "compose_post accessed JSON completed";
 
   auto text_future =
       std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
@@ -436,6 +440,8 @@ void ComposePostHandler::ComposePost(
   // auto unique_id_future = std::async(
   //     std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this,
   //     req_id, post_type, writer_text_map);
+
+  LOG(info) << "future status completed";
 
   // Handle unique_id_future
   std::future_status unique_id_future_status;
@@ -466,7 +472,7 @@ void ComposePostHandler::ComposePost(
   LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
 
   times["ComposePostService-unique_id_future"]["time"] = std::to_string(latency) + "ms";
-  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/timeout_values.json");
+  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.json");
   output_times_file << times.dump(4);
   output_times_file.close();
 

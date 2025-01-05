@@ -435,6 +435,7 @@ void ComposePostHandler::ComposePost(
           value.erase(value.find_last_not_of(" \t") + 1);
           value.erase(0, value.find_first_not_of(" \t"));
           times[key] = value;
+          LOG(info) << key << " " << value;
       }
   }
 

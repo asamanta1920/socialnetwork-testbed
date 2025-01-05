@@ -5,7 +5,6 @@
 #include <regex>
 #include <future>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -25,7 +24,6 @@
 #include <fstream>
 
 using namespace std::chrono_literals;
-using json = nlohmann::json;
 
 namespace social_network {
 using std::chrono::duration_cast;
@@ -408,8 +406,6 @@ void ComposePostHandler::ComposePost(
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
 
-
-
   LOG(info) << "Test 1";
   std::cout << "Test 1";
 
@@ -423,8 +419,25 @@ void ComposePostHandler::ComposePost(
 
   LOG(info) << "compose_post opentracing completed";
 
-  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.json");
-  json times_file = json::parse(times);
+  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+  std::map<std::string, std::string> times;
+  std::string line;
+
+  while (std::getline(times_file, line)) {
+      if (line.empty() || line.find(':') == std::string::npos) {
+          continue;
+      }
+      std::istringstream line_stream(line);
+      std::string key, value;
+      if (std::getline(line_stream, key, ':') && std::getline(line_stream, value)) {
+          key.erase(key.find_last_not_of(" \t") + 1);
+          key.erase(0, key.find_first_not_of(" \t"));
+          value.erase(value.find_last_not_of(" \t") + 1);
+          value.erase(0, value.find_first_not_of(" \t"));
+          times[key] = value;
+      }
+  }
+
   times_file.close();
 
   LOG(info) << "compose_post accessed JSON completed";
@@ -473,8 +486,10 @@ void ComposePostHandler::ComposePost(
   LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
 
   times["ComposePostService-unique_id_future"]["time"] = std::to_string(latency) + "ms";
-  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.json");
-  output_times_file << times.dump(4);
+  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+  for (const auto& [key, value] : times) {
+      output_times_file << key << " : " << value << "\n";
+  }
   output_times_file.close();
 
   post.creator = creator_future.get();

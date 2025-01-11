@@ -127,8 +127,6 @@ ComposePostHandler::ComposePostHandler(
 Creator ComposePostHandler::_ComposeCreaterHelper(
     int64_t req_id, int64_t user_id, const std::string &username,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 7";
-  std::cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -166,8 +164,6 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
 TextServiceReturn ComposePostHandler::_ComposeTextHelper(
     int64_t req_id, const std::string &text,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 7";
-  std::cout << "Test 7";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -206,8 +202,6 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
     int64_t req_id, const std::vector<std::string> &media_types,
     const std::vector<int64_t> &media_ids,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 6";
-  std::cout << "Test 6";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -246,8 +240,6 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
 int64_t ComposePostHandler::_ComposeUniqueIdHelper(
     int64_t req_id, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 5";
-  std::cout << "Test 5";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -285,8 +277,6 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
 void ComposePostHandler::_UploadPostHelper(
     int64_t req_id, const Post &post,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 4";
-  std::cout << "Test 4";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -320,8 +310,6 @@ void ComposePostHandler::_UploadPostHelper(
 void ComposePostHandler::_UploadUserTimelineHelper(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::map<std::string, std::string> &carrier) {
-  LOG(info) << "Test 3";
-  std::cout << "Test 3";
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -356,10 +344,6 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::vector<int64_t> &user_mentions_id,
     const std::map<std::string, std::string> &carrier) {
-
-  LOG(info) << "Test 2";
-  std::cout << "Test 2";
-
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -396,10 +380,6 @@ void ComposePostHandler::ComposePost(
     const std::string &text, const std::vector<int64_t> &media_ids,
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
-
-    LOG(info) << "Test 1";
-    std::cout << "Test 1";
-
     TextMapReader reader(carrier);
     auto parent_span = opentracing::Tracer::Global()->Extract(reader);
     auto span = opentracing::Tracer::Global()->StartSpan(
@@ -407,8 +387,6 @@ void ComposePostHandler::ComposePost(
     std::map<std::string, std::string> writer_text_map;
     TextMapWriter writer(writer_text_map);
     opentracing::Tracer::Global()->Inject(span->context(), writer);
-
-    LOG(info) << "compose_post opentracing completed";
 
     std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
     std::map<std::string, std::string> times;
@@ -432,35 +410,118 @@ void ComposePostHandler::ComposePost(
 
     times_file.close();
 
-    LOG(info) << "compose_post accessed JSON completed";
-
+    // Handle text_future
+    std::future_status text_future_status;
     auto text_future =
         std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
                     this, req_id, text, writer_text_map);
-    auto creator_future =
-        std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
-                    this, req_id, user_id, username, writer_text_map);
-    auto media_future =
-        std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
-                    this, req_id, media_types, media_ids, writer_text_map);
 
-    // Handle unique_id_future
-    std::future_status unique_id_future_status;
-    auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
+    int timeout_ms_text_future = 500;
 
-    int timeout_ms = 5000;  // Default timeout value
-
-    // Try to get timeout value from the config file if available
-    if (times.find("ComposePostService-unique_id_future") != times.end()) {
+    if (times.find("ComposePostService-text_future") != times.end()) {
         try {
-            timeout_ms = std::stoi(times["ComposePostService-unique_id_future"]);
+            timeout_ms_text_future = std::stoi(times["ComposePostService-text_future"]);
         } catch (const std::exception& e) {
             LOG(error) << "Error parsing timeout value: " << e.what();
         }
     }
 
     do {
-        unique_id_future_status = unique_id_future.wait_for(std::chrono::milliseconds(timeout_ms));
+        text_future_status = text_future.wait_for(std::chrono::milliseconds(timeout_ms_text_future));
+
+        switch (text_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for text_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (text_future_status != std::future_status::ready);
+
+    // Handle creator_future
+    std::future_status creator_future_status;
+    auto creator_future =
+        std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
+                    this, req_id, user_id, username, writer_text_map);
+
+    int timeout_ms_creator_future = 500;
+
+    if (times.find("ComposePostService-creator_future") != times.end()) {
+        try {
+            timeout_ms_creator_future = std::stoi(times["ComposePostService-creator_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        creator_future_status = creator_future.wait_for(std::chrono::milliseconds(timeout_ms_creator_future));
+
+        switch (creator_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for creator_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (creator_future_status != std::future_status::ready);
+
+    // Handle media_future
+    std::future_status media_future_status;
+    auto media_future =
+        std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
+                    this, req_id, media_types, media_ids, writer_text_map);
+    
+    int timeout_ms_media_future = 500;
+
+    if (times.find("ComposePostService-media_future") != times.end()) {
+        try {
+            timeout_ms_media_future = std::stoi(times["ComposePostService-media_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        media_future_status = media_future.wait_for(std::chrono::milliseconds(timeout_ms_media_future));
+
+        switch (media_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for media_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (media_future_status != std::future_status::ready);
+
+    // Handle unique_id_future
+    std::future_status unique_id_future_status;
+    auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
+
+    int timeout_ms_unique_id_future = 500;
+
+    if (times.find("ComposePostService-unique_id_future") != times.end()) {
+        try {
+            timeout_ms_unique_id_future = std::stoi(times["ComposePostService-unique_id_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        unique_id_future_status = unique_id_future.wait_for(std::chrono::milliseconds(timeout_ms_unique_id_future));
 
         switch (unique_id_future_status) {
             case std::future_status::deferred:
@@ -487,27 +548,65 @@ void ComposePostHandler::ComposePost(
         auto end_time = std::chrono::system_clock::now();
         auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
-
-        // Update times map with latency for the unique_id future
         times["ComposePostService-unique_id_future"] = std::to_string(latency) + "ms";
-
         std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
         for (const auto& pair : times) {
             const auto& key = pair.first;
             const auto& value = pair.second;
             output_times_file << key << ": " << value << std::endl;
         }
-
         output_times_file.close();
 
+
+        auto start_time = std::chrono::system_clock::now();
         post.creator = creator_future.get();
+        auto end_time = std::chrono::system_clock::now();
+        auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        LOG(info) << "ComposePost creator_future latency: " << latency << " ms";
+        times["ComposePostService-creator_future"] = std::to_string(latency) + "ms";
+        std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+        for (const auto& pair : times) {
+            const auto& key = pair.first;
+            const auto& value = pair.second;
+            output_times_file << key << ": " << value << std::endl;
+        }
+        output_times_file.close();
+
+    
+        auto start_time = std::chrono::system_clock::now();
         post.media = media_future.get();
+        auto end_time = std::chrono::system_clock::now();
+        auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        LOG(info) << "ComposePost media_future latency: " << latency << " ms";
+        times["ComposePostService-media_future"] = std::to_string(latency) + "ms";
+        std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+        for (const auto& pair : times) {
+            const auto& key = pair.first;
+            const auto& value = pair.second;
+            output_times_file << key << ": " << value << std::endl;
+        }
+        output_times_file.close();
+
+
+        auto start_time = std::chrono::system_clock::now();
         auto text_return = text_future.get();
         post.text = text_return.text;
         post.urls = text_return.urls;
         post.user_mentions = text_return.user_mentions;
         post.req_id = req_id;
         post.post_type = post_type;
+        auto end_time = std::chrono::system_clock::now();
+        auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        LOG(info) << "ComposePost text_future latency: " << latency << " ms";
+        times["ComposePostService-text_future"] = std::to_string(latency) + "ms";
+        std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+        for (const auto& pair : times) {
+            const auto& key = pair.first;
+            const auto& value = pair.second;
+            output_times_file << key << ": " << value << std::endl;
+        }
+        output_times_file.close();
+
     }
     catch (const std::exception& e) {
         LOG(error) << "Error while composing post: " << e.what();
@@ -519,19 +618,145 @@ void ComposePostHandler::ComposePost(
         user_mention_ids.emplace_back(item.user_id);
     }
 
+    // Handle post_future
+    std::future_status post_future_status;
     auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                                   this, req_id, post, writer_text_map);
+
+    int timeout_ms_post_future = 500;
+
+    if (times.find("ComposePostService-post_future") != times.end()) {
+        try {
+            timeout_ms_post_future = std::stoi(times["ComposePostService-post_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        post_future_status = post_future.wait_for(std::chrono::milliseconds(timeout_ms_post_future));
+
+        switch (post_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for post_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (post_future_status != std::future_status::ready);
+
+
+    // Handle user_timeline_future
+    std::future_status user_timeline_future_status;
     auto user_timeline_future = std::async(
         std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, writer_text_map);
+
+    int timeout_ms_user_timeline_future = 500;
+
+    if (times.find("ComposePostService-user_timeline_future") != times.end()) {
+        try {
+            timeout_ms_user_timeline_future = std::stoi(times["ComposePostService-user_timeline_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        user_timeline_future_status = user_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_user_timeline_future));
+
+        switch (user_timeline_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for user_timeline_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (user_timeline_future_status != std::future_status::ready);
+
+
+    // Handle home_timeline_future
+    std::future_status home_timeline_future_status;
     auto home_timeline_future = std::async(
         std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, user_mention_ids,
         writer_text_map);
 
+    int timeout_ms_home_timeline_future = 500;
+
+    if (times.find("ComposePostService-home_timeline_future") != times.end()) {
+        try {
+            timeout_ms_home_timeline_future = std::stoi(times["ComposePostService-home_timeline_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
+
+    do {
+        home_timeline_future_status = home_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_home_timeline_future));
+
+        switch (home_timeline_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(info) << "Timeout waiting for home_timeline_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (home_timeline_future_status != std::future_status::ready);
+
+    auto start_time = std::chrono::system_clock::now();
     post_future.get();
+    auto end_time = std::chrono::system_clock::now();
+    auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    LOG(info) << "ComposePost post_future latency: " << latency << " ms";
+    times["ComposePostService-post_future"] = std::to_string(latency) + "ms";
+    std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+    for (const auto& pair : times) {
+        const auto& key = pair.first;
+        const auto& value = pair.second;
+        output_times_file << key << ": " << value << std::endl;
+    }
+    output_times_file.close();
+
+    auto start_time = std::chrono::system_clock::now();
     user_timeline_future.get();
+    auto end_time = std::chrono::system_clock::now();
+    auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    LOG(info) << "ComposePost user_timeline_future latency: " << latency << " ms";
+    times["ComposePostService-user_timeline_future"] = std::to_string(latency) + "ms";
+    std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+    for (const auto& pair : times) {
+        const auto& key = pair.first;
+        const auto& value = pair.second;
+        output_times_file << key << ": " << value << std::endl;
+    }
+    output_times_file.close();
+
+    auto start_time = std::chrono::system_clock::now();
     home_timeline_future.get();
+    auto end_time = std::chrono::system_clock::now();
+    auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    LOG(info) << "ComposePost home_timeline_future latency: " << latency << " ms";
+    times["ComposePostService-home_timeline_future"] = std::to_string(latency) + "ms";
+    std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+    for (const auto& pair : times) {
+        const auto& key = pair.first;
+        const auto& value = pair.second;
+        output_times_file << key << ": " << value << std::endl;
+    }
+    output_times_file.close();
 
     span->Finish();
 }

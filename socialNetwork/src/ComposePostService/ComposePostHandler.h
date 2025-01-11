@@ -431,13 +431,13 @@ void ComposePostHandler::ComposePost(
 
         switch (text_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred text_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for text_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready text_future";
                 break;
         }
     } while (text_future_status != std::future_status::ready);
@@ -463,13 +463,13 @@ void ComposePostHandler::ComposePost(
 
         switch (creator_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred creator_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for creator_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready creator_future";
                 break;
         }
     } while (creator_future_status != std::future_status::ready);
@@ -495,13 +495,13 @@ void ComposePostHandler::ComposePost(
 
         switch (media_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred media_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for media_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready media_future";
                 break;
         }
     } while (media_future_status != std::future_status::ready);
@@ -525,13 +525,13 @@ void ComposePostHandler::ComposePost(
 
         switch (unique_id_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred unique_id_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for unique_id_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready unique_id_future";
                 break;
         }
     } while (unique_id_future_status != std::future_status::ready);
@@ -638,13 +638,13 @@ void ComposePostHandler::ComposePost(
 
         switch (post_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred post_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for post_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready post_future";
                 break;
         }
     } while (post_future_status != std::future_status::ready);
@@ -671,13 +671,13 @@ void ComposePostHandler::ComposePost(
 
         switch (user_timeline_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred user_timeline_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for user_timeline_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready user_timeline_future";
                 break;
         }
     } while (user_timeline_future_status != std::future_status::ready);
@@ -705,13 +705,13 @@ void ComposePostHandler::ComposePost(
 
         switch (home_timeline_future_status) {
             case std::future_status::deferred:
-                LOG(info) << "Deferred";
+                LOG(info) << "Deferred home_timeline_future";
                 break;
             case std::future_status::timeout:
                 LOG(info) << "Timeout waiting for home_timeline_future";
                 break;
             case std::future_status::ready:
-                LOG(info) << "Ready";
+                LOG(info) << "Ready home_timeline_future";
                 break;
         }
     } while (home_timeline_future_status != std::future_status::ready);

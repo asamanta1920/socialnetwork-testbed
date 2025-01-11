@@ -467,7 +467,7 @@ void ComposePostHandler::ComposePost(
                 LOG(info) << "Deferred";
                 break;
             case std::future_status::timeout:
-                LOG(warn) << "Timeout waiting for unique_id_future";
+                LOG(info) << "Timeout waiting for unique_id_future";
                 break;
             case std::future_status::ready:
                 LOG(info) << "Ready";

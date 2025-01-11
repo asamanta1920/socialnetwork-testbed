@@ -30,28 +30,19 @@ using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
 
-std::chrono::seconds parse_duration(const std::string &str) {
-    // Regular expression to extract the number (assuming it's seconds)
-    std::regex regex("(\\d+)([smhd])");
+std::chrono::milliseconds parse_duration(const std::string &str) {
+    // Regular expression to extract the number (assuming it's milliseconds, seconds, etc.)
+    std::regex regex("(\\d+)([smhdms])");
     std::smatch match;
     
     if (regex_match(str, match, regex)) {
         int time_value = std::stoi(match[1].str());  // Extract the number
-        char time_unit = match[2].str()[0];          // Extract the time unit (s, m, h, d)
-
-        switch (time_unit) {
-            case 's':
-                return std::chrono::seconds(time_value);  // Return as seconds
-            case 'm':
-                return std::chrono::minutes(time_value);  // Return as minutes
-            case 'h':
-                return std::chrono::hours(time_value);    // Return as hours
-            case 'd':
-                return std::chrono::hours(time_value * 24);  // Return as days (converted to hours)
-        }
+        char time_unit = match[2].str()[0];
+        
+        return std::chrono::milliseconds(time_value);  // Return as milliseconds
     }
 
-    return std::chrono::seconds(0);  // Default to 0 if invalid input
+    return std::chrono::milliseconds(0);  // Default to 0 if invalid input
 }
 
 class ComposePostHandler : public ComposePostServiceIf {

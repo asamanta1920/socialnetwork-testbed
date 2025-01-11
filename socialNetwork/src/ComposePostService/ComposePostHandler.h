@@ -462,7 +462,7 @@ void ComposePostHandler::ComposePost(
   std::future_status unique_id_future_status;
   auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
   do {
-      switch (unique_id_future_status = unique_id_future.wait_for(parse_duration(times["ComposePostService-unique_id_future"]["time"]))) {
+      switch (unique_id_future_status = unique_id_future.wait_for(parse_duration(std::string(times["ComposePostService-unique_id_future"]["time"])))) {
           case std::future_status::deferred:
               break;
           case std::future_status::timeout:
@@ -486,11 +486,13 @@ void ComposePostHandler::ComposePost(
   auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
   LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
 
-  times["ComposePostService-unique_id_future"]["time"] = std::to_string(latency) + "ms";
+  times["ComposePostService-unique_id_future"]["time"] = std::string(std::to_string(latency) + "ms");
   std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
-  for (const auto& [key, value] : times) {
-      output_times_file << key << " : " << value << "\n";
+  for (const auto& pair : times) {
+    const auto& key = pair.first;
+    const auto& value = pair.second;
   }
+
   output_times_file.close();
 
   post.creator = creator_future.get();

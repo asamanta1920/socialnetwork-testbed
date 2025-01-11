@@ -397,141 +397,143 @@ void ComposePostHandler::ComposePost(
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
 
-  LOG(info) << "Test 1";
-  std::cout << "Test 1";
+    LOG(info) << "Test 1";
+    std::cout << "Test 1";
 
-  TextMapReader reader(carrier);
-  auto parent_span = opentracing::Tracer::Global()->Extract(reader);
-  auto span = opentracing::Tracer::Global()->StartSpan(
-      "compose_post_server", {opentracing::ChildOf(parent_span->get())});
-  std::map<std::string, std::string> writer_text_map;
-  TextMapWriter writer(writer_text_map);
-  opentracing::Tracer::Global()->Inject(span->context(), writer);
+    TextMapReader reader(carrier);
+    auto parent_span = opentracing::Tracer::Global()->Extract(reader);
+    auto span = opentracing::Tracer::Global()->StartSpan(
+        "compose_post_server", {opentracing::ChildOf(parent_span->get())});
+    std::map<std::string, std::string> writer_text_map;
+    TextMapWriter writer(writer_text_map);
+    opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  LOG(info) << "compose_post opentracing completed";
+    LOG(info) << "compose_post opentracing completed";
 
-  std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
-  std::map<std::string, std::string> times;
-  std::string line;
+    std::ifstream times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+    std::map<std::string, std::string> times;
+    std::string line;
 
-  while (std::getline(times_file, line)) {
-      if (line.empty() || line.find(':') == std::string::npos) {
-          continue;
-      }
-      std::istringstream line_stream(line);
-      std::string key, value;
-      if (std::getline(line_stream, key, ':') && std::getline(line_stream, value)) {
-          key.erase(key.find_last_not_of(" \t") + 1);
-          key.erase(0, key.find_first_not_of(" \t"));
-          value.erase(value.find_last_not_of(" \t") + 1);
-          value.erase(0, value.find_first_not_of(" \t"));
-          times[key] = value;
-          LOG(info) << key << " " << value;
-      }
-  }
+    while (std::getline(times_file, line)) {
+        if (line.empty() || line.find(':') == std::string::npos) {
+            continue;
+        }
+        std::istringstream line_stream(line);
+        std::string key, value;
+        if (std::getline(line_stream, key, ':') && std::getline(line_stream, value)) {
+            key.erase(key.find_last_not_of(" \t") + 1);
+            key.erase(0, key.find_first_not_of(" \t"));
+            value.erase(value.find_last_not_of(" \t") + 1);
+            value.erase(0, value.find_first_not_of(" \t"));
+            times[key] = value;
+            LOG(info) << key << " " << value;
+        }
+    }
 
-  times_file.close();
+    times_file.close();
 
-  LOG(info) << "compose_post accessed JSON completed";
+    LOG(info) << "compose_post accessed JSON completed";
 
-  auto text_future =
-      std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
-                 this, req_id, text, writer_text_map);
-  auto creator_future =
-      std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
-                 this, req_id, user_id, username, writer_text_map);
-  auto media_future =
-      std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
-                 this, req_id, media_types, media_ids, writer_text_map);
-  // auto unique_id_future = std::async(
-  //     std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this,
-  //     req_id, post_type, writer_text_map);
+    auto text_future =
+        std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
+                    this, req_id, text, writer_text_map);
+    auto creator_future =
+        std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
+                    this, req_id, user_id, username, writer_text_map);
+    auto media_future =
+        std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
+                    this, req_id, media_types, media_ids, writer_text_map);
 
-  LOG(info) << "future status completed";
+    // Handle unique_id_future
+    std::future_status unique_id_future_status;
+    auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
 
-  // Handle unique_id_future
-  std::future_status unique_id_future_status;
-  auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
-  do {
-      switch (unique_id_future_status = unique_id_future.wait_for(parse_duration(std::string(times["ComposePostService-unique_id_future"]["time"])))) {
-          case std::future_status::deferred:
-              break;
-          case std::future_status::timeout:
-              break;
-          case std::future_status::ready:
-              break;
-      }
-  } while (unique_id_future_status != std::future_status::ready);
+    int timeout_ms = 5000;  // Default timeout value
 
-  Post post;
-  auto timestamp =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
-  post.timestamp = timestamp;
+    // Try to get timeout value from the config file if available
+    if (times.find("ComposePostService-unique_id_future") != times.end()) {
+        try {
+            timeout_ms = std::stoi(times["ComposePostService-unique_id_future"]);
+        } catch (const std::exception& e) {
+            LOG(error) << "Error parsing timeout value: " << e.what();
+        }
+    }
 
-  // try
-  // {
-  auto start_time = std::chrono::system_clock::now(); 
-  post.post_id = unique_id_future.get();
-  auto end_time = std::chrono::system_clock::now();
-  auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-  LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
+    do {
+        unique_id_future_status = unique_id_future.wait_for(std::chrono::milliseconds(timeout_ms));
 
-  times["ComposePostService-unique_id_future"]["time"] = std::string(std::to_string(latency) + "ms");
-  std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
-  for (const auto& pair : times) {
-    const auto& key = pair.first;
-    const auto& value = pair.second;
-  }
+        switch (unique_id_future_status) {
+            case std::future_status::deferred:
+                LOG(info) << "Deferred";
+                break;
+            case std::future_status::timeout:
+                LOG(warn) << "Timeout waiting for unique_id_future";
+                break;
+            case std::future_status::ready:
+                LOG(info) << "Ready";
+                break;
+        }
+    } while (unique_id_future_status != std::future_status::ready);
 
-  output_times_file.close();
+    Post post;
+    auto timestamp =
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+            .count();
+    post.timestamp = timestamp;
 
-  post.creator = creator_future.get();
-  post.media = media_future.get();
-  auto text_return = text_future.get();
-  post.text = text_return.text;
-  post.urls = text_return.urls;
-  post.user_mentions = text_return.user_mentions;
-  post.req_id = req_id;
-  post.post_type = post_type;
-  // }
-  // catch (...)
-  // {
-  //   throw;
-  // }
+    try {
+        auto start_time = std::chrono::system_clock::now();
+        post.post_id = unique_id_future.get();
+        auto end_time = std::chrono::system_clock::now();
+        auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        LOG(info) << "ComposePost unique_id_future latency: " << latency << " ms";
 
-  std::vector<int64_t> user_mention_ids;
-  for (auto &item : post.user_mentions) {
-    user_mention_ids.emplace_back(item.user_id);
-  }
+        // Update times map with latency for the unique_id future
+        times["ComposePostService-unique_id_future"] = std::to_string(latency) + "ms";
 
-  //In mixed workloed condition, need to make sure _UploadPostHelper execute
-  //Before _UploadUserTimelineHelper and _UploadHomeTimelineHelper.
-  //Change _UploadUserTimelineHelper and _UploadHomeTimelineHelper to deferred.
-  //To let them start execute after post_future.get() return.
-  auto post_future =
-      std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
-                 this, req_id, post, writer_text_map);
-  auto user_timeline_future = std::async(
-      std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
-      req_id, post.post_id, user_id, timestamp, writer_text_map);
-  auto home_timeline_future = std::async(
-      std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this,
-      req_id, post.post_id, user_id, timestamp, user_mention_ids,
-      writer_text_map);
+        std::ofstream output_times_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/timeout_values.txt");
+        for (const auto& pair : times) {
+            const auto& key = pair.first;
+            const auto& value = pair.second;
+            output_times_file << key << ": " << value << std::endl;
+        }
 
-  // try
-  // {
-  post_future.get();
-  user_timeline_future.get();
-  home_timeline_future.get();
-  // }
-  // catch (...)
-  // {
-  //   throw;
-  // }
+        output_times_file.close();
 
-  span->Finish();
+        post.creator = creator_future.get();
+        post.media = media_future.get();
+        auto text_return = text_future.get();
+        post.text = text_return.text;
+        post.urls = text_return.urls;
+        post.user_mentions = text_return.user_mentions;
+        post.req_id = req_id;
+        post.post_type = post_type;
+    }
+    catch (const std::exception& e) {
+        LOG(error) << "Error while composing post: " << e.what();
+        throw;
+    }
+
+    std::vector<int64_t> user_mention_ids;
+    for (auto &item : post.user_mentions) {
+        user_mention_ids.emplace_back(item.user_id);
+    }
+
+    auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
+                                  this, req_id, post, writer_text_map);
+    auto user_timeline_future = std::async(
+        std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
+        req_id, post.post_id, user_id, timestamp, writer_text_map);
+    auto home_timeline_future = std::async(
+        std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this,
+        req_id, post.post_id, user_id, timestamp, user_mention_ids,
+        writer_text_map);
+
+    post_future.get();
+    user_timeline_future.get();
+    home_timeline_future.get();
+
+    span->Finish();
 }
 
 }  // namespace social_network

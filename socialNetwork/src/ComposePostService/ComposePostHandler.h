@@ -406,15 +406,15 @@ void ComposePostHandler::ComposePost(
 
     std::ifstream waittimes_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/wait_times.txt");
     std::map<std::string, std::string> waittimes;
-    std::string line;
+    std::string line2;
 
-    while (std::getline(waittimes_file, line)) {
-        if (line.empty() || line.find(':') == std::string::npos) {
+    while (std::getline(waittimes_file, line2)) {
+        if (line2.empty() || line2.find(':') == std::string::npos) {
             continue;
         }
-        std::istringstream line_stream(line);
+        std::istringstream line_stream2(line2);
         std::string key, value;
-        if (std::getline(line_stream, key, ':') && std::getline(line_stream, value)) {
+        if (std::getline(line_stream2, key, ':') && std::getline(line_stream2, value)) {
             key.erase(key.find_last_not_of(" \t") + 1);
             key.erase(0, key.find_first_not_of(" \t"));
             value.erase(value.find_last_not_of(" \t") + 1);

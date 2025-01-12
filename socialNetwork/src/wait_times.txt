@@ -1,0 +1,16 @@
+ComposePostService-text_future : 2000
+ComposePostService-creator_future : 2000
+ComposePostService-media_future : 2000
+ComposePostService-unique_id_future : 2000
+ComposePostService-post_future : 2000
+ComposePostService-user_timeline_future : 2000
+ComposePostService-home_timeline_future : 2000
+TextService-shortened_urls_future : 2000
+TextService-user_mention_future : 2000
+UrlShortenService-mongo_future : 2000
+SocialGraphService-mongo_update_follower_future : 2000
+SocialGraphService-mongo_update_followee_future : 2000
+SocialGraphService-redis_update_future : 2000
+SocialGraphService-user_id_future : 2000
+SocialGraphService-followee_id_future : 2000
+SocialGraphService-post_future : 2000

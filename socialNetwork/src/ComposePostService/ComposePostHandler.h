@@ -432,10 +432,10 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
                     this, req_id, text, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_text_future(times["ComposePostService-text_future"]);
+    std::chrono::milliseconds timeout_ms_text_future(std::stoi(times["ComposePostService-text_future"]));
 
     do {
-        text_future_status = text_future.wait_for(timeout_ms_text_future));
+        text_future_status = text_future.wait_for(timeout_ms_text_future);
 
         switch (text_future_status) {
             case std::future_status::deferred:
@@ -456,7 +456,7 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
                     this, req_id, user_id, username, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_creator_future(times["ComposePostService-creator_future"]);
+    std::chrono::milliseconds timeout_ms_creator_future(std::stoi(times["ComposePostService-creator_future"]));
 
     do {
         creator_future_status = creator_future.wait_for(timeout_ms_creator_future);
@@ -480,7 +480,7 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
                     this, req_id, media_types, media_ids, writer_text_map);
     
-    std::chrono::milliseconds timeout_ms_media_future(times["ComposePostService-media_future"]);
+    std::chrono::milliseconds timeout_ms_media_future(std::stoi(times["ComposePostService-media_future"]));
 
     do {
         media_future_status = media_future.wait_for(timeout_ms_media_future);
@@ -502,7 +502,7 @@ void ComposePostHandler::ComposePost(
     std::future_status unique_id_future_status;
     auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_unique_id_future(times["ComposePostService-unique_id_future"]);
+    std::chrono::milliseconds timeout_ms_unique_id_future(std::stoi(times["ComposePostService-unique_id_future"]));
 
     do {
         unique_id_future_status = unique_id_future.wait_for(timeout_ms_unique_id_future);
@@ -615,7 +615,7 @@ void ComposePostHandler::ComposePost(
     auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                                   this, req_id, post, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_post_future(times["ComposePostService-post_future"]);
+    std::chrono::milliseconds timeout_ms_post_future(std::stoi(times["ComposePostService-post_future"]));
 
     do {
         post_future_status = post_future.wait_for(timeout_ms_post_future);
@@ -640,10 +640,10 @@ void ComposePostHandler::ComposePost(
         std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_user_timeline_future(times["ComposePostService-user_timeline_future"]);
+    std::chrono::milliseconds timeout_ms_user_timeline_future(std::stoi(times["ComposePostService-user_timeline_future"]));
 
     do {
-        user_timeline_future_status = user_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_user_timeline_future));
+        user_timeline_future_status = user_timeline_future.wait_for(timeout_ms_user_timeline_future);
 
         switch (user_timeline_future_status) {
             case std::future_status::deferred:
@@ -666,10 +666,10 @@ void ComposePostHandler::ComposePost(
         req_id, post.post_id, user_id, timestamp, user_mention_ids,
         writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_home_timeline_future(times["ComposePostService-home_timeline_future"]);
+    std::chrono::milliseconds timeout_ms_home_timeline_future(std::stoi(times["ComposePostService-home_timeline_future"]));
 
     do {
-        home_timeline_future_status = home_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_home_timeline_future));
+        home_timeline_future_status = home_timeline_future.wait_for(timeout_ms_home_timeline_future);
 
         switch (home_timeline_future_status) {
             case std::future_status::deferred:

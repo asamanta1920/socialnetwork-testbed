@@ -432,7 +432,12 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
                     this, req_id, text, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_text_future(std::stoi(times["ComposePostService-text_future"]));
+    auto time_str1 = times["ComposePostService-text_future"];
+    if (time_str1.empty() || !std::all_of(time_str1.begin(), time_str1.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str1;
+    } else {
+        std::chrono::milliseconds timeout_ms_text_future(std::stoi(time_str1));
+    }
 
     do {
         text_future_status = text_future.wait_for(timeout_ms_text_future);
@@ -456,7 +461,12 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
                     this, req_id, user_id, username, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_creator_future(std::stoi(times["ComposePostService-creator_future"]));
+    auto time_str2 = times["ComposePostService-creator_future"];
+    if (time_str2.empty() || !std::all_of(time_str2.begin(), time_str2.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str2;
+    } else {
+        std::chrono::milliseconds timeout_ms_creator_future(std::stoi(time_str2));
+    }
 
     do {
         creator_future_status = creator_future.wait_for(timeout_ms_creator_future);
@@ -480,7 +490,12 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
                     this, req_id, media_types, media_ids, writer_text_map);
     
-    std::chrono::milliseconds timeout_ms_media_future(std::stoi(times["ComposePostService-media_future"]));
+    auto time_str3 = times["ComposePostService-media_future"];
+    if (time_str3.empty() || !std::all_of(time_str3.begin(), time_str3.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str3;
+    } else {
+        std::chrono::milliseconds timeout_ms_media_future(std::stoi(time_str3));
+    }
 
     do {
         media_future_status = media_future.wait_for(timeout_ms_media_future);
@@ -502,7 +517,12 @@ void ComposePostHandler::ComposePost(
     std::future_status unique_id_future_status;
     auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_unique_id_future(std::stoi(times["ComposePostService-unique_id_future"]));
+    auto time_str4 = times["ComposePostService-unique_id_future"];
+    if (time_str4.empty() || !std::all_of(time_str4.begin(), time_str4.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str4;
+    } else {
+        std::chrono::milliseconds timeout_ms_unique_id_future(std::stoi(time_str4));
+    }
 
     do {
         unique_id_future_status = unique_id_future.wait_for(timeout_ms_unique_id_future);
@@ -615,7 +635,12 @@ void ComposePostHandler::ComposePost(
     auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                                   this, req_id, post, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_post_future(std::stoi(times["ComposePostService-post_future"]));
+    auto time_str5 = times["ComposePostService-post_future"];
+    if (time_str5.empty() || !std::all_of(time_str5.begin(), time_str5.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str5;
+    } else {
+        std::chrono::milliseconds timeout_ms_post_future(std::stoi(time_str5));
+    }
 
     do {
         post_future_status = post_future.wait_for(timeout_ms_post_future);
@@ -640,7 +665,12 @@ void ComposePostHandler::ComposePost(
         std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_user_timeline_future(std::stoi(times["ComposePostService-user_timeline_future"]));
+    auto time_str6 = times["ComposePostService-user_timeline_future"];
+    if (time_str6.empty() || !std::all_of(time_str6.begin(), time_str6.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str6;
+    } else {
+        std::chrono::milliseconds timeout_ms_user_timeline_future(std::stoi(time_str6));
+    }
 
     do {
         user_timeline_future_status = user_timeline_future.wait_for(timeout_ms_user_timeline_future);
@@ -666,7 +696,12 @@ void ComposePostHandler::ComposePost(
         req_id, post.post_id, user_id, timestamp, user_mention_ids,
         writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_home_timeline_future(std::stoi(times["ComposePostService-home_timeline_future"]));
+    auto time_str7 = times["ComposePostService-home_timeline_future"];
+    if (time_str7.empty() || !std::all_of(time_str7.begin(), time_str7.end(), ::isdigit)) {
+        LOG(error) << "Invalid timeout value: " << time_str7;
+    } else {
+        std::chrono::milliseconds timeout_ms_home_timeline_future(std::stoi(time_str7));
+    }
 
     do {
         home_timeline_future_status = home_timeline_future.wait_for(timeout_ms_home_timeline_future);

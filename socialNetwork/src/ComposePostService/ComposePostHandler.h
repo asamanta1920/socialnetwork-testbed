@@ -441,7 +441,7 @@ void ComposePostHandler::ComposePost(
     }
 
     std::chrono::milliseconds wait_time_text_future(0);
-    auto time_str12 = wait_time["ComposePostService-text_future"];
+    auto time_str12 = waittimes["ComposePostService-text_future"];
     if (time_str12.empty() || !std::all_of(time_str12.begin(), time_str12.end(), ::isdigit)) {
         LOG(error) << "Invalid timeout value: " << time_str12;
     } else {

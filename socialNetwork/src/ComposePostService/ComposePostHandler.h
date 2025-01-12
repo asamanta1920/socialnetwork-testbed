@@ -544,8 +544,10 @@ void ComposePostHandler::ComposePost(
 
     try {
         auto start_time_unique_id_future = std::chrono::system_clock::now();
+        LOG(info) << start_time_unique_id_future;
         post.post_id = unique_id_future.get();
         auto end_time_unique_id_future = std::chrono::system_clock::now();
+        LOG(info) << end_time_unique_id_future;
         auto latency_unique_id_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_unique_id_future - start_time_unique_id_future).count();
         LOG(info) << "ComposePost unique_id_future latency: " << latency_unique_id_future << " ms";
         times["ComposePostService-unique_id_future"] = std::to_string(latency_unique_id_future) + "ms";
@@ -559,8 +561,10 @@ void ComposePostHandler::ComposePost(
 
 
         auto start_time_creator_future = std::chrono::system_clock::now();
+        LOG(info) << start_time_creator_future;
         post.creator = creator_future.get();
         auto end_time_creator_future = std::chrono::system_clock::now();
+        LOG(info) << end_time_creator_future;
         auto latency_creator_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_creator_future - start_time_creator_future).count();
         LOG(info) << "ComposePost creator_future latency: " << latency_creator_future << " ms";
         times["ComposePostService-creator_future"] = std::to_string(latency_creator_future) + "ms";
@@ -574,8 +578,10 @@ void ComposePostHandler::ComposePost(
 
     
         auto start_time_media_future = std::chrono::system_clock::now();
+        LOG(info) << start_time_media_future;
         post.media = media_future.get();
         auto end_time_media_future = std::chrono::system_clock::now();
+        LOG(info) << end_time_media_future;
         auto latency_media_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_media_future - start_time_media_future).count();
         LOG(info) << "ComposePost media_future latency: " << latency_media_future << " ms";
         times["ComposePostService-media_future"] = std::to_string(latency_media_future) + "ms";
@@ -589,6 +595,7 @@ void ComposePostHandler::ComposePost(
 
 
         auto start_time_text_future = std::chrono::system_clock::now();
+        LOG(info) << start_time_text_future;
         auto text_return = text_future.get();
         post.text = text_return.text;
         post.urls = text_return.urls;
@@ -596,6 +603,7 @@ void ComposePostHandler::ComposePost(
         post.req_id = req_id;
         post.post_type = post_type;
         auto end_time_text_future = std::chrono::system_clock::now();
+        LOG(info) << end_time_text_future;
         auto latency_text_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_text_future - start_time_text_future).count();
         LOG(info) << "ComposePost text_future latency: " << latency_text_future << " ms";
         times["ComposePostService-text_future"] = std::to_string(latency_text_future) + "ms";
@@ -717,8 +725,10 @@ void ComposePostHandler::ComposePost(
     } while (home_timeline_future_status != std::future_status::ready);
 
     auto start_time_post_future = std::chrono::system_clock::now();
+    LOG(info) << start_time_post_future;
     post_future.get();
     auto end_time_post_future = std::chrono::system_clock::now();
+    LOG(info) << end_time_post_future;
     auto latency_post_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_post_future - start_time_post_future).count();
     LOG(info) << "ComposePost post_future latency: " << latency_post_future << " ms";
     times["ComposePostService-post_future"] = std::to_string(latency_post_future) + "ms";
@@ -731,8 +741,10 @@ void ComposePostHandler::ComposePost(
     output_times_file_post_future.close();
 
     auto start_time_user_timeline_future = std::chrono::system_clock::now();
+    LOG(info) << start_time_user_timeline_future;
     user_timeline_future.get();
     auto end_time_user_timeline_future = std::chrono::system_clock::now();
+    LOG(info) << end_time_user_timeline_future;
     auto latency_user_timeline_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_user_timeline_future - start_time_user_timeline_future).count();
     LOG(info) << "ComposePost user_timeline_future latency: " << latency_user_timeline_future << " ms";
     times["ComposePostService-user_timeline_future"] = std::to_string(latency_user_timeline_future) + "ms";
@@ -745,8 +757,10 @@ void ComposePostHandler::ComposePost(
     output_times_file_user_timeline_future.close();
 
     auto start_time_home_timeline_future = std::chrono::system_clock::now();
+    LOG(info) << start_time_home_timeline_future;
     home_timeline_future.get();
     auto end_time_home_timeline_future = std::chrono::system_clock::now();
+    LOG(info) << end_time_home_timeline_future;
     auto latency_home_timeline_future = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_home_timeline_future - start_time_home_timeline_future).count();
     LOG(info) << "ComposePost home_timeline_future latency: " << latency_home_timeline_future << " ms";
     times["ComposePostService-home_timeline_future"] = std::to_string(latency_home_timeline_future) + "ms";

@@ -404,24 +404,38 @@ void ComposePostHandler::ComposePost(
 
     times_file.close();
 
+    std::ifstream waittimes_file("/mydata/adrita/socialnetwork-testbed/socialNetwork/src/wait_times.txt");
+    std::map<std::string, std::string> waittimes;
+    std::string line;
+
+    while (std::getline(waittimes_file, line)) {
+        if (line.empty() || line.find(':') == std::string::npos) {
+            continue;
+        }
+        std::istringstream line_stream(line);
+        std::string key, value;
+        if (std::getline(line_stream, key, ':') && std::getline(line_stream, value)) {
+            key.erase(key.find_last_not_of(" \t") + 1);
+            key.erase(0, key.find_first_not_of(" \t"));
+            value.erase(value.find_last_not_of(" \t") + 1);
+            value.erase(0, value.find_first_not_of(" \t"));
+            waittimes[key] = value;
+            LOG(info) << key << " " << value;
+        }
+    }
+
+    waittimes_file.close();
+
     // Handle text_future
     std::future_status text_future_status;
     auto text_future =
         std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
                     this, req_id, text, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_text_future(500);
-
-    if (times.find("ComposePostService-text_future") != times.end()) {
-        try {
-            timeout_ms_text_future = std::stoi(times["ComposePostService-text_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_text_future(times["ComposePostService-text_future"]);
 
     do {
-        text_future_status = text_future.wait_for(std::chrono::milliseconds(timeout_ms_text_future));
+        text_future_status = text_future.wait_for(timeout_ms_text_future));
 
         switch (text_future_status) {
             case std::future_status::deferred:
@@ -442,18 +456,10 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
                     this, req_id, user_id, username, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_creator_future(500);
-
-    if (times.find("ComposePostService-creator_future") != times.end()) {
-        try {
-            timeout_ms_creator_future = std::stoi(times["ComposePostService-creator_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_creator_future(times["ComposePostService-creator_future"]);
 
     do {
-        creator_future_status = creator_future.wait_for(std::chrono::milliseconds(timeout_ms_creator_future));
+        creator_future_status = creator_future.wait_for(timeout_ms_creator_future);
 
         switch (creator_future_status) {
             case std::future_status::deferred:
@@ -474,18 +480,10 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
                     this, req_id, media_types, media_ids, writer_text_map);
     
-    std::chrono::milliseconds timeout_ms_media_future(500);
-
-    if (times.find("ComposePostService-media_future") != times.end()) {
-        try {
-            timeout_ms_media_future = std::stoi(times["ComposePostService-media_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_media_future(times["ComposePostService-media_future"]);
 
     do {
-        media_future_status = media_future.wait_for(std::chrono::milliseconds(timeout_ms_media_future));
+        media_future_status = media_future.wait_for(timeout_ms_media_future);
 
         switch (media_future_status) {
             case std::future_status::deferred:
@@ -504,18 +502,10 @@ void ComposePostHandler::ComposePost(
     std::future_status unique_id_future_status;
     auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_unique_id_future(500);
-
-    if (times.find("ComposePostService-unique_id_future") != times.end()) {
-        try {
-            timeout_ms_unique_id_future = std::stoi(times["ComposePostService-unique_id_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_unique_id_future(times["ComposePostService-unique_id_future"]);
 
     do {
-        unique_id_future_status = unique_id_future.wait_for(std::chrono::milliseconds(timeout_ms_unique_id_future));
+        unique_id_future_status = unique_id_future.wait_for(timeout_ms_unique_id_future);
 
         switch (unique_id_future_status) {
             case std::future_status::deferred:
@@ -625,18 +615,10 @@ void ComposePostHandler::ComposePost(
     auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                                   this, req_id, post, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_post_future(500);
-
-    if (times.find("ComposePostService-post_future") != times.end()) {
-        try {
-            timeout_ms_post_future = std::stoi(times["ComposePostService-post_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_post_future(times["ComposePostService-post_future"]);
 
     do {
-        post_future_status = post_future.wait_for(std::chrono::milliseconds(timeout_ms_post_future));
+        post_future_status = post_future.wait_for(timeout_ms_post_future);
 
         switch (post_future_status) {
             case std::future_status::deferred:
@@ -658,15 +640,7 @@ void ComposePostHandler::ComposePost(
         std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_user_timeline_future(500);
-
-    if (times.find("ComposePostService-user_timeline_future") != times.end()) {
-        try {
-            timeout_ms_user_timeline_future = std::stoi(times["ComposePostService-user_timeline_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_user_timeline_future(times["ComposePostService-user_timeline_future"]);
 
     do {
         user_timeline_future_status = user_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_user_timeline_future));
@@ -692,15 +666,7 @@ void ComposePostHandler::ComposePost(
         req_id, post.post_id, user_id, timestamp, user_mention_ids,
         writer_text_map);
 
-    std::chrono::milliseconds timeout_ms_home_timeline_future(500);
-
-    if (times.find("ComposePostService-home_timeline_future") != times.end()) {
-        try {
-            timeout_ms_home_timeline_future = std::stoi(times["ComposePostService-home_timeline_future"]);
-        } catch (const std::exception& e) {
-            LOG(error) << "Error parsing timeout value: " << e.what();
-        }
-    }
+    std::chrono::milliseconds timeout_ms_home_timeline_future(times["ComposePostService-home_timeline_future"]);
 
     do {
         home_timeline_future_status = home_timeline_future.wait_for(std::chrono::milliseconds(timeout_ms_home_timeline_future));

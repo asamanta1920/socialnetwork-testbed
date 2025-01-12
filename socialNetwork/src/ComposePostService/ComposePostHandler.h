@@ -39,21 +39,6 @@ std::string formatTimePoint(const std::chrono::system_clock::time_point& tp) {
     return oss.str();
 }
 
-std::chrono::milliseconds parse_duration(const std::string &str) {
-    // Regular expression to extract the number (assuming it's milliseconds, seconds, etc.)
-    std::regex regex("(\\d+)([smhdms])");
-    std::smatch match;
-    
-    if (regex_match(str, match, regex)) {
-        int time_value = std::stoi(match[1].str());  // Extract the number
-        char time_unit = match[2].str()[0];
-        
-        return std::chrono::milliseconds(time_value);  // Return as milliseconds
-    }
-
-    return std::chrono::milliseconds(0);  // Default to 0 if invalid input
-}
-
 class ComposePostHandler : public ComposePostServiceIf {
  public:
   ComposePostHandler(ClientPool<ThriftClient<PostStorageServiceClient>> *,
@@ -425,7 +410,7 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeTextHelper,
                     this, req_id, text, writer_text_map);
 
-    int timeout_ms_text_future = 500;
+    std::chrono::milliseconds timeout_ms_text_future(500);
 
     if (times.find("ComposePostService-text_future") != times.end()) {
         try {
@@ -457,7 +442,7 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeCreaterHelper,
                     this, req_id, user_id, username, writer_text_map);
 
-    int timeout_ms_creator_future = 500;
+    std::chrono::milliseconds timeout_ms_creator_future(500);
 
     if (times.find("ComposePostService-creator_future") != times.end()) {
         try {
@@ -489,7 +474,7 @@ void ComposePostHandler::ComposePost(
         std::async(std::launch::async, &ComposePostHandler::_ComposeMediaHelper,
                     this, req_id, media_types, media_ids, writer_text_map);
     
-    int timeout_ms_media_future = 500;
+    std::chrono::milliseconds timeout_ms_media_future(500);
 
     if (times.find("ComposePostService-media_future") != times.end()) {
         try {
@@ -519,7 +504,7 @@ void ComposePostHandler::ComposePost(
     std::future_status unique_id_future_status;
     auto unique_id_future = std::async(std::launch::async, &ComposePostHandler::_ComposeUniqueIdHelper, this, req_id, post_type, writer_text_map);
 
-    int timeout_ms_unique_id_future = 500;
+    std::chrono::milliseconds timeout_ms_unique_id_future(500);
 
     if (times.find("ComposePostService-unique_id_future") != times.end()) {
         try {
@@ -640,7 +625,7 @@ void ComposePostHandler::ComposePost(
     auto post_future = std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                                   this, req_id, post, writer_text_map);
 
-    int timeout_ms_post_future = 500;
+    std::chrono::milliseconds timeout_ms_post_future(500);
 
     if (times.find("ComposePostService-post_future") != times.end()) {
         try {
@@ -673,7 +658,7 @@ void ComposePostHandler::ComposePost(
         std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
         req_id, post.post_id, user_id, timestamp, writer_text_map);
 
-    int timeout_ms_user_timeline_future = 500;
+    std::chrono::milliseconds timeout_ms_user_timeline_future(500);
 
     if (times.find("ComposePostService-user_timeline_future") != times.end()) {
         try {
@@ -707,7 +692,7 @@ void ComposePostHandler::ComposePost(
         req_id, post.post_id, user_id, timestamp, user_mention_ids,
         writer_text_map);
 
-    int timeout_ms_home_timeline_future = 500;
+    std::chrono::milliseconds timeout_ms_home_timeline_future(500);
 
     if (times.find("ComposePostService-home_timeline_future") != times.end()) {
         try {
